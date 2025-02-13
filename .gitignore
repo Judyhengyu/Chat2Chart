@@ -32,7 +32,6 @@ ENV/
 *.swo
 
 # Project specific
-data/
 *.log
 .env
 config.ini
