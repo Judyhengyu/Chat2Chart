@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="pagetitle mb-4">
+        <h1>语义分析</h1>
+        <nav>
+            <ol class="breadcrumb mt-2">
+                <li class="breadcrumb-item"><a href="/index">首页</a></li>
+                <li class="breadcrumb-item">{{ contact.name }}</li>
+                <li class="breadcrumb-item active">语义分析</li>
+            </ol>
+        </nav>
+    </div>
+
+    <section class="section dashboard">
+        <div class="row">
+            <!-- 第一行：关键词分析、话题分布和情感分析 -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title">🔑 关键词分析</h5>
+                            <button class="btn btn-primary btn-sm" onclick="generateKeywordsCloud()">
+                                <i class="bi bi-gear"></i> 生成图表
+                            </button>
+                        </div>
+                        <div id="keywordsCloud" style="min-height: 400px;" class="echart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title">🗂️话题分布</h5>
+                            <button class="btn btn-primary btn-sm" onclick="generateTopicsChart()">
+                                <i class="bi bi-gear"></i> 生成图表
+                            </button>
+                        </div>
+                        <div id="topicsChart" style="min-height: 400px;" class="echart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title">😊 情感分析</h5>
+                            <button class="btn btn-primary btn-sm" onclick="generateSentimentChart()">
+                                <i class="bi bi-gear"></i> 生成图表
+                            </button>
+                        </div>
+                        <div id="sentimentChart" style="min-height: 400px;" class="echart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第二行：话题标签追踪 -->
+            <div class="col-12">
+                <div class="card" style="height: 800px;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title">🏷️ 话题标签追踪</h5>
+                            <div>
+                                <select class="form-select form-select-sm d-inline-block me-2" style="width: auto;"
+                                        id="tagTimeGranularity">
+                                    <option value="month">按月</option>
+                                    <option value="week">按周</option>
+                                    <option value="day">按天</option>
+                                </select>
+                                <button class="btn btn-primary btn-sm" onclick="generateTagTrendsChart()">
+                                    <i class="bi bi-gear"></i> 生成图表
+                                </button>
+                            </div>
+                        </div>
+                        <div id="tagTrendsChart" style="height: 700px; width: 100%; margin: 0 auto;"
+                             class="echart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 标记当前页面的导航项为激活状态
+            const currentNav = document.querySelector(`a[href="/contact/{{ contact.id }}/semantic"]`);
+            if (currentNav) {
+                currentNav.classList.add('active');
+                // 展开并高亮父级菜单
+                const parentCollapse = currentNav.closest('.collapse');
+                if (parentCollapse) {
+                    parentCollapse.classList.add('show');
+                    const parentNavLink = document.querySelector(`[data-bs-target="#${parentCollapse.id}"]`);
+                    if (parentNavLink) {
+                        parentNavLink.classList.remove('collapsed');
+                        parentNavLink.classList.add('active-parent');
+                    }
+                }
+            }
+
+            // 加载已存储的图表数据
+            loadStoredCharts();
+        });
+
+        // 加载已存储的图表数据
+        function loadStoredCharts() {
+            fetch(`/api/contacts/{{ contact.id }}/semantic/stats`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Loaded stored data:', data);
+                    // 如果有存储的数据就显示
+                    if (data.keywords && data.keywords.tfidf) {
+                        initKeywordsCloud({tfidf: data.keywords.tfidf});
+                        document.querySelector('button[onclick="generateKeywordsCloud()"]').innerHTML =
+                            '<i class="bi bi-arrow-clockwise"></i> 重新生成';
+                    }
+                    if (data.topics && data.topics.keywords) {
+                        initTopicsChart(data.topics);
+                        document.querySelector('button[onclick="generateTopicsChart()"]').innerHTML =
+                            '<i class="bi bi-arrow-clockwise"></i> 重新生成';
+                    }
+                    if (data.sentiment) {
+                        initSentimentChart(data.sentiment);
+                        document.querySelector('button[onclick="generateSentimentChart()"]').innerHTML =
+                            '<i class="bi bi-arrow-clockwise"></i> 重新生成';
+                    }
+                    if (data.tags && data.tags.times) {  // 检查标签数据是否存在
+                        initTagTrendsChart({trends: data.tags});
+                        document.querySelector('button[onclick="generateTagTrendsChart()"]').innerHTML =
+                            '<i class="bi bi-arrow-clockwise"></i> 重新生成';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading stored data:', error);
+                });
+        }
+
+        // 生成关键词云图
+        function generateKeywordsCloud() {
+            const button = document.querySelector('button[onclick="generateKeywordsCloud()"]');
+            button.disabled = true;
+            button.innerHTML = '<i class="bi bi-hourglass-split"></i> 生成中...';
+
+            fetch(`/api/contacts/{{ contact.id }}/semantic/generate/keywords`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    initKeywordsCloud(data);
+                    button.innerHTML = '<i class="bi bi-check-circle"></i> 已生成';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    button.innerHTML = '<i class="bi bi-x-circle"></i> 生成失败';
+                    alert('生成关键词云图失败: ' + error.message);
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        button.disabled = false;
+                        button.innerHTML = '<i class="bi bi-arrow-clockwise"></i> 重新生成';
+                    }, 2000);
+                });
+        }
+
+        // 生成话题分布图
+        function generateTopicsChart() {
+            const button = document.querySelector('button[onclick="generateTopicsChart()"]');
+            button.disabled = true;
+            button.innerHTML = '<i class="bi bi-hourglass-split"></i> 生成中...';
+
+            fetch(`/api/contacts/{{ contact.id }}/semantic/generate/topics`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    initTopicsChart(data);
+                    button.innerHTML = '<i class="bi bi-check-circle"></i> 已生成';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    button.innerHTML = '<i class="bi bi-x-circle"></i> 生成失败';
+                    alert('生成话题分布图失败: ' + error.message);
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        button.disabled = false;
+                        button.innerHTML = '<i class="bi bi-arrow-clockwise"></i> 重新生成';
+                    }, 2000);
+                });
+        }
+
+        // 生成情感分析图
+        function generateSentimentChart() {
+            const button = document.querySelector('button[onclick="generateSentimentChart()"]');
+            button.disabled = true;
+            button.innerHTML = '<i class="bi bi-hourglass-split"></i> 生成中...';
+
+            fetch(`/api/contacts/{{ contact.id }}/semantic/generate/sentiment`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    initSentimentChart(data);
+                    button.innerHTML = '<i class="bi bi-check-circle"></i> 已生成';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    button.innerHTML = '<i class="bi bi-x-circle"></i> 生成失败';
+                    alert('生成情感分析图失败: ' + error.message);
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        button.disabled = false;
+                        button.innerHTML = '<i class="bi bi-arrow-clockwise"></i> 重新生成';
+                    }, 2000);
+                });
+        }
+
+        // 生成话题标签追踪图
+        function generateTagTrendsChart() {
+            const button = document.querySelector('button[onclick="generateTagTrendsChart()"]');
+            button.disabled = true;
+            button.innerHTML = '<i class="bi bi-hourglass-split"></i> 生成中...';
+
+            const granularity = document.getElementById('tagTimeGranularity').value;
+
+            fetch(`/api/contacts/{{ contact.id }}/semantic/generate/tags?granularity=${granularity}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    initTagTrendsChart({trends: data});
+                    button.innerHTML = '<i class="bi bi-check-circle"></i> 已生成';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    button.innerHTML = '<i class="bi bi-x-circle"></i> 生成失败';
+                    alert('生成话题标签追踪图失败: ' + error.message);
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        button.disabled = false;
+                        button.innerHTML = '<i class="bi bi-gear"></i> 生成图表';
+                    }, 2000);
+                });
+        }
+    </script>
+{% endblock %} 

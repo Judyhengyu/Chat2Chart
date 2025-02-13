@@ -1,0 +1,357 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="pagetitle mb-4">
+        <h1>基础分析</h1>
+        <nav>
+            <ol class="breadcrumb mt-2">
+                <li class="breadcrumb-item"><a href="/index">首页</a></li>
+                <li class="breadcrumb-item">{{ contact.name }}</li>
+                <li class="breadcrumb-item active">基础分析</li>
+            </ol>
+        </nav>
+    </div>
+
+    <section class="section dashboard">
+        <div class="row">
+            <!-- 左侧：好友信息和消息类型分布 -->
+            <div class="col-lg-8">
+                <div class="row">
+                    <!-- 好友信息卡片 -->
+                    <div class="col-12">
+                        <div class="card info-card" style="margin-bottom: 12px;">
+                            <div class="card-body" style="padding: 12px;">
+                                <h5 class="card-title">👤 好友信息</h5>
+                                <div class="row">
+                                    <!-- 左侧头像 -->
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <img src="/proxy/image?url={{ user_info.headImgUrl | urlencode }}"
+                                                 class="rounded-circle img-fluid mb-3"
+                                                 style="width: 120px; height: 120px; object-fit: cover;"
+                                                 alt="头像">
+                                        </div>
+                                    </div>
+                                    <!-- 中间信息 -->
+                                    <div class="col-md-5">
+                                        <div class="user-info">
+                                            <div class="mb-2">
+                                                <strong>昵称：</strong>
+                                                <span>{{ user_info.nickname }}</span>
+                                                {% if user_info.remark %}
+                                                    <span class="text-muted">({{ user_info.remark }})</span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>微信号：</strong>
+                                                <span>{{ user_info.wxid }}</span>
+                                            </div>
+                                            {% if user_info.account %}
+                                                <div class="mb-2">
+                                                    <strong>账号：</strong>
+                                                    <span>{{ user_info.account }}</span>
+                                                </div>
+                                            {% endif %}
+                                            <div class="mb-2">
+                                                <strong>性别：</strong>
+                                                <span>
+                                                {% if user_info.ExtraBuf['性别[1男2女]'] == 1 %}
+                                                    男
+                                                {% elif user_info.ExtraBuf['性别[1男2女]'] == 2 %}
+                                                    女
+                                                {% else %}
+                                                    未知
+                                                {% endif %}
+                                            </span>
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>地区：</strong>
+                                                <span>
+                                                {{ user_info.ExtraBuf['国'] }}
+                                                {{ user_info.ExtraBuf['省'] }}
+                                                {{ user_info.ExtraBuf['市'] }}
+                                            </span>
+                                            </div>
+                                            {% if user_info.LabelIDList %}
+                                                <div class="mb-2">
+                                                    <strong>标签：</strong>
+                                                    {% for label in user_info.LabelIDList %}
+                                                        <span class="badge bg-primary me-1">{{ label }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <!-- 右侧朋友圈背景 -->
+                                    <div class="col-md-4">
+                                        {% if user_info.ExtraBuf['朋友圈背景'] %}
+                                            <div class="moments-bg-container d-flex w-100">
+                                                <div class="moments-title me-2">
+                                                    <span class="vertical-text">朋友圈背景</span>
+                                                </div>
+                                                <div class="moments-image flex-grow-1">
+                                                    <img src="/proxy/image?url={{ user_info.ExtraBuf['朋友圈背景'] | urlencode }}"
+                                                         class="img-fluid rounded"
+                                                         style="height: 200px; width: 100%; object-fit: cover;"
+                                                         alt="朋友圈背景">
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 消息类型分布 -->
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">📂 消息类型</h5>
+                                <div id="messageStatsChart" style="min-height: 280px;" class="echart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：消息统计 -->
+            <div class="col-lg-4">
+                <div class="card info-card" style="height: calc(100% - 12px);">
+                    <div class="card-body">
+                        <h5 class="card-title">📊 消息统计</h5>
+
+                        <!-- 消息总数和日均消息 -->
+                        <div class="row mb-3">
+                            <div class="col-6 border-end">
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="bi bi-chat-dots text-primary"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-value">{{ total_messages }}</div>
+                                        <div class="stat-label">消息总数</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="bi bi-calendar3 text-success"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-value">{{ avg_daily_messages }}</div>
+                                        <div class="stat-label">日均消息</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 最活跃时段和最活跃日期 -->
+                        <div class="row mb-3">
+                            <div class="col-6 border-end">
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="bi bi-clock text-info"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-value">{{ most_active_hour }}:00</div>
+                                        <div class="stat-label">最活跃时段</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="bi bi-calendar-week text-warning"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-value">{{ most_active_day }}</div>
+                                        <div class="stat-label">最活跃日期</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 消息占比 -->
+                        <div class="message-ratio">
+                            <div class="progress mb-2">
+                                <div class="progress-bar" role="progressbar"
+                                     style="width: {{ message_ratio.sender.percentage }}%; background-color: #4154f1;"
+                                     aria-valuenow="{{ message_ratio.sender.percentage }}"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100">
+                                    {{ message_ratio.sender.percentage }}%
+                                </div>
+                                <div class="progress-bar bg-success" role="progressbar"
+                                     style="width: {{ message_ratio.receiver.percentage }}%"
+                                     aria-valuenow="{{ message_ratio.receiver.percentage }}"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100">
+                                    {{ message_ratio.receiver.percentage }}%
+                                </div>
+                            </div>
+                            <div class="ratio-legend d-flex justify-content-between small text-muted">
+                                <div>
+                                    <i class="bi bi-square-fill text-primary"></i>
+                                    我的消息 ({{ message_ratio.sender.count }})
+                                </div>
+                                <div>
+                                    <i class="bi bi-square-fill text-success"></i>
+                                    对方消息 ({{ message_ratio.receiver.count }})
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 星期分布环状图 -->
+                        <div class="weekday-chart mt-3">
+                            <div id="weekdayChart" style="height: 200px;" class="echart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 消息长度分析 -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">📏 消息长度</h5>
+                        <div id="messageLengthChart" style="min-height: 400px;" class="echart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 时间分布图 -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">⏰ 时间分布</h5>
+                        <div id="timeDistributionChart" style="min-height: 400px;" class="echart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 每日统计图 -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">📅 每日统计</h5>
+                        <div id="dailyStatsChart" style="min-height: 400px;" class="echart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 标记当前页面的导航项为激活状态
+            const currentNav = document.querySelector(`a[href="/contact/{{ contact.id }}/basic"]`);
+            if (currentNav) {
+                currentNav.classList.add('active');
+                // 展开并高亮父级菜单
+                const parentCollapse = currentNav.closest('.collapse');
+                if (parentCollapse) {
+                    parentCollapse.classList.add('show');
+                    const parentNavLink = document.querySelector(`[data-bs-target="#${parentCollapse.id}"]`);
+                    if (parentNavLink) {
+                        parentNavLink.classList.remove('collapsed');
+                        parentNavLink.classList.add('active-parent');
+                    }
+                }
+            }
+
+            // 加载图表数据
+            fetch(`/api/contacts/{{ contact.id }}/basic/stats`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Received data:', data);
+                    if (data.message_stats && data.time_stats && data.daily_stats && data.message_length) {
+                        initMessageStatsChart(data.message_stats);
+                        initTimeDistributionChart(data.time_stats);
+                        initWeekdayChart(data.time_stats);
+                        initDailyStatsChart(data.daily_stats);
+                        initMessageLengthChart(data.message_length);
+                    } else {
+                        console.error('Missing data:', data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading data:', error);
+                });
+        });
+
+        function initMessageStatsChart(data) {
+            // 实现消息统计图表
+        }
+
+        function initTimeDistributionChart(data) {
+            // 实现时间分布图表
+        }
+
+        function initWeekdayChart(data) {
+            // 实现星期分布图表
+        }
+
+        function initDailyStatsChart(data) {
+            const chart = echarts.init(document.getElementById('dailyStatsChart'));
+
+            // 处理数据
+            const dates = Object.keys(data.daily_counts).sort();
+            const messageTypes = Object.keys(data.daily_types);
+
+            const series = messageTypes.map(type => ({
+                name: type,
+                type: 'line',
+                stack: 'Total',
+                areaStyle: {},
+                emphasis: {
+                    focus: 'series'
+                },
+                data: dates.map(date => data.daily_types[type]?.[date] || 0)
+            }));
+
+            const option = {
+                title: {
+                    text: '每日消息统计',
+                    left: 'center'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#6a7985'
+                        }
+                    }
+                },
+                legend: {
+                    data: messageTypes,
+                    top: 30
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: dates
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '消息数量'
+                    }
+                ],
+                series: series
+            };
+
+            chart.setOption(option);
+        }
+    </script>
+{% endblock %} 

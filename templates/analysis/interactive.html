@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="pagetitle mb-4">
+        <h1>交互分析</h1>
+        <nav>
+            <ol class="breadcrumb mt-2">
+                <li class="breadcrumb-item"><a href="/index">首页</a></li>
+                <li class="breadcrumb-item">{{ contact.name }}</li>
+                <li class="breadcrumb-item active">交互分析</li>
+            </ol>
+        </nav>
+    </div>
+
+    <section class="section dashboard">
+        <div class="row">
+            <!-- 响应时间分析 -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">⏱️响应时间</h5>
+                        <div id="responseTimeChart" style="min-height: 400px;" class="echart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 互动情况分析 -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">💬 互动情况</h5>
+                        <div id="interactionChart" style="min-height: 400px;" class="echart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 对话间隔分析 -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">⏳ 对话间隔</h5>
+                        <div id="chatPatternChart" style="min-height: 300px;" class="echart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 聊天热力图 -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">🌡️ 聊天热力图</h5>
+                        <div id="chatHeatmap" style="min-height: 400px;" class="echart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 标记当前页面的导航项为激活状态
+            const currentNav = document.querySelector(`a[href="/contact/{{ contact.id }}/interactive"]`);
+            if (currentNav) {
+                currentNav.classList.add('active');
+                // 展开并高亮父级菜单
+                const parentCollapse = currentNav.closest('.collapse');
+                if (parentCollapse) {
+                    parentCollapse.classList.add('show');
+                    const parentNavLink = document.querySelector(`[data-bs-target="#${parentCollapse.id}"]`);
+                    if (parentNavLink) {
+                        parentNavLink.classList.remove('collapsed');
+                        parentNavLink.classList.add('active-parent');
+                    }
+                }
+            }
+
+            // 加载图表数据
+            fetch(`/api/contacts/{{ contact.id }}/interactive/stats`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Received data:', data);
+                    if (data.chat_pattern && data.response_time && data.heatmap && data.interaction) {
+                        initChatPatternChart(data);
+                        initResponseTimeChart(data);
+                        initChatHeatmap(data);
+                        initInteractionChart(data);
+                    } else {
+                        console.error('Missing data:', data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading data:', error);
+                });
+        });
+    </script>
+{% endblock %} 

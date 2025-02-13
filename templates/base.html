@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="referrer" content="no-referrer">
+
+    <title>Chat2Chart - 微信聊天记录可视化</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="/static/img/logo-wechat.svg" rel="icon">
+    <link href="/static/img/logo-wechat.svg" rel="apple-touch-icon">
+    <!-- Vendor CSS Files -->
+    <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <!-- Template Main CSS File -->
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+<!-- ======= Header ======= -->
+<header id="header" class="header fixed-top d-flex align-items-center">
+    <div class="d-flex align-items-center justify-content-between">
+        <a href="/introduction" class="logo d-flex align-items-center">
+            <img src="/static/img/logo-wechat.svg" alt="">
+            <span class="d-none d-lg-block">Chat2Chart</span>
+        </a>
+        <i class="bi bi-list toggle-sidebar-btn"></i>
+    </div><!-- End Logo -->
+</header><!-- End Header -->
+<!-- ======= Sidebar ======= -->
+<aside id="sidebar" class="sidebar">
+    <ul class="sidebar-nav" id="sidebar-nav">
+
+        <li class="nav-item">
+            <a class="nav-link " href="/index">
+                <i class="bi bi-grid"></i>
+                <span>首页</span>
+            </a>
+        </li><!-- End Dashboard Nav -->
+
+        <!-- Add New Contact Button -->
+        <li class="nav-item new-contact-btn">
+            <a class="nav-link" href="#" id="new-contact-btn">
+                <i class="bi bi-person-plus"></i>
+                <span>新建联系人</span>
+            </a>
+        </li><!-- End New Contact Button -->
+
+        <li class="nav-heading">联系人</li>
+        {% for contact in contacts %}
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#contact-{{ contact.id }}-nav" data-bs-toggle="collapse"
+                   href="#">
+                    <i class="bi bi-person"></i>
+                    <span>{{ contact.name }}</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
+                    <button class="btn btn-link text-primary p-0 ms-2 edit-contact"
+                            data-contact-id="{{ contact.id }}"
+                            data-contact-name="{{ contact.name }}"
+                            style="font-size: 14px;">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-link text-warning p-0 ms-2 update-contact"
+                            data-contact-id="{{ contact.id }}"
+                            data-contact-name="{{ contact.name }}"
+                            style="font-size: 14px;">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                    <button class="btn btn-link text-danger p-0 ms-2 delete-contact"
+                            data-contact-id="{{ contact.id }}"
+                            data-contact-name="{{ contact.name }}"
+                            style="font-size: 14px;">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </a>
+                <ul id="contact-{{ contact.id }}-nav" class="nav-content collapse"
+                    data-bs-parent="#contact-{{ contact.id }}-parent">
+                    <li>
+                        <a href="/contact/{{ contact.id }}/basic">
+                            <i class="bi bi-circle"></i><span>基础分析</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/contact/{{ contact.id }}/interactive">
+                            <i class="bi bi-circle"></i><span>交互分析</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/contact/{{ contact.id }}/semantic">
+                            <i class="bi bi-circle"></i><span>语义分析</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+</aside><!-- End Sidebar-->
+
+<!-- New Contact Modal -->
+<div class="modal fade" id="newContactModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">新建联系人</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="newContactForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="contactName" class="form-label">联系人姓名</label>
+                        <input type="text" class="form-control" id="contactName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="chatPath" class="form-label">聊天记录路径</label>
+                        <input type="text" class="form-control" id="chatPath" name="path" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 添加删除确认对话框 -->
+<div class="modal fade" id="deleteContactModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">删除联系人</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除联系人 "<span id="deleteContactName"></span>" 吗？此操作不可恢复。</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 添加编辑对话框 -->
+<div class="modal fade" id="editContactModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">编辑联系人</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editContactForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editContactName" class="form-label">联系人姓名</label>
+                        <input type="text" class="form-control" id="editContactName" name="name" required>
+                        <input type="hidden" id="editContactId" name="id">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 添加更新确认对话框 -->
+<div class="modal fade" id="updateContactModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">更新联系人</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>确定要更新联系人 "<span id="updateContactName"></span>" 吗？此操作不可恢复。</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-warning" id="confirmUpdate">更新</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<main id="main" class="main">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- Vendor JS Files -->
+<script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/static/vendor/echarts/echarts.min.js"></script>
+<script src="/static/vendor/echarts/echarts-wordcloud.min.js"></script>
+<!-- Template Main JS File -->
+<script src="/static/js/main.js"></script>
+<!-- Chart JS Files -->
+<script src="/static/js/charts/basic_charts.js"></script>
+<script src="/static/js/charts/interactive_charts.js"></script>
+<script src="/static/js/charts/semantic_charts.js"></script>
+<script src="{{ url_for('static', filename='js/charts/dashboard_charts.js') }}"></script>
+
+<script>
+    // 初始化新建联系人模态框
+    document.getElementById('new-contact-btn').addEventListener('click', function (e) {
+        e.preventDefault();
+        new bootstrap.Modal(document.getElementById('newContactModal')).show();
+    });
+
+    // 处理新建联系人表单提交
+    document.getElementById('newContactForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch('/api/contacts/new', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+
+                // 添加新联系人到侧边栏
+                const contactsContainer = document.getElementById('sidebar-nav');
+                const newContactHtml = `
+                <li class="nav-item">
+                    <a class="nav-link collapsed" data-bs-target="#contact-${data.id}-nav" data-bs-toggle="collapse" href="#">
+                        <i class="bi bi-person"></i>
+                        <span>${data.name}</span>
+                        <i class="bi bi-chevron-down ms-auto"></i>
+                        <button class="btn btn-link text-primary p-0 ms-2 edit-contact" 
+                                data-contact-id="${data.id}"
+                                data-contact-name="${data.name}"
+                                style="font-size: 14px;">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-link text-warning p-0 ms-2 update-contact" 
+                                data-contact-id="${data.id}"
+                                data-contact-name="${data.name}"
+                                style="font-size: 14px;">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                        <button class="btn btn-link text-danger p-0 ms-2 delete-contact" 
+                                data-contact-id="${data.id}"
+                                data-contact-name="${data.name}"
+                                style="font-size: 14px;">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </a>
+                    <ul id="contact-${data.id}-nav" class="nav-content collapse">
+                        <li><a href="/contact/${data.id}/basic"><i class="bi bi-circle"></i><span>基础分析</span></a></li>
+                        <li><a href="/contact/${data.id}/interactive"><i class="bi bi-circle"></i><span>交互分析</span></a></li>
+                        <li><a href="/contact/${data.id}/semantic"><i class="bi bi-circle"></i><span>语义分析</span></a></li>
+                    </ul>
+                </li>
+            `;
+                contactsContainer.insertAdjacentHTML('beforeend', newContactHtml);
+
+                // 关闭模态框并重置表单
+                bootstrap.Modal.getInstance(document.getElementById('newContactModal')).hide();
+                e.target.reset();
+
+                // 如果在首页，刷新数据总览
+                if (window.location.pathname === '/' || window.location.pathname === '/index') {
+                    location.reload();
+                }
+            })
+            .catch(error => alert('添加联系人失败: ' + error.message));
+    });
+
+    // 处理删除按钮点击
+    document.querySelectorAll('.delete-contact').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const contactId = this.dataset.contactId;
+            const contactName = this.dataset.contactName;
+
+            // 显示确认对话框
+            const modal = new bootstrap.Modal(document.getElementById('deleteContactModal'));
+            document.getElementById('deleteContactName').textContent = contactName;
+            document.getElementById('confirmDelete').onclick = () => deleteContact(contactId, modal);
+            modal.show();
+        });
+    });
+
+    // 删除联系人
+    function deleteContact(contactId, modal) {
+        fetch(`/api/contacts/${contactId}/delete`, {method: 'DELETE'})
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) throw new Error(data.error || '删除失败');
+
+                // 从侧边栏移除联系人
+                document.querySelector(`[data-bs-target="#contact-${contactId}-nav"]`)
+                    .closest('.nav-item').remove();
+
+                // 处理页面跳转
+                const currentPath = window.location.pathname;
+                if (currentPath.includes(`/contact/${contactId}/`)) {
+                    window.location.href = '/index';
+                } else if (currentPath === '/' || currentPath === '/index') {
+                    location.reload();
+                }
+
+                modal.hide();
+            })
+            .catch(error => alert('删除联系人失败: ' + error.message));
+    }
+
+    // 处理编辑按钮点击
+    document.querySelectorAll('.edit-contact').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // 显示编辑对话框
+            const modal = new bootstrap.Modal(document.getElementById('editContactModal'));
+            document.getElementById('editContactName').value = this.dataset.contactName;
+            document.getElementById('editContactId').value = this.dataset.contactId;
+            modal.show();
+        });
+    });
+
+    // 处理编辑表单提交
+    document.getElementById('editContactForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const contactId = formData.get('id');
+
+        fetch(`/api/contacts/${contactId}/edit`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: formData.get('name')})
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) throw new Error(data.error || '更新失败');
+
+                // 更新侧边栏联系人名称
+                const contactLink = document.querySelector(`[data-bs-target="#contact-${contactId}-nav"]`);
+                contactLink.querySelector('span').textContent = formData.get('name');
+
+                // 更新按钮的数据属性
+                const editBtn = contactLink.querySelector('.edit-contact');
+                const updateBtn = contactLink.querySelector('.update-contact');
+                const deleteBtn = contactLink.querySelector('.delete-contact');
+                editBtn.dataset.contactName = formData.get('name');
+                updateBtn.dataset.contactName = formData.get('name');
+                deleteBtn.dataset.contactName = formData.get('name');
+
+                // 处理页面更新
+                const currentPath = window.location.pathname;
+                if (currentPath.includes(`/contact/${contactId}/`)) {
+                    document.querySelector('.breadcrumb-item:nth-child(2)').textContent = formData.get('name');
+                } else if (currentPath === '/' || currentPath === '/index') {
+                    location.reload();
+                }
+
+                bootstrap.Modal.getInstance(document.getElementById('editContactModal')).hide();
+            })
+            .catch(error => alert('更新联系人失败: ' + error.message));
+    });
+
+    // 处理更新按钮点击
+    document.querySelectorAll('.update-contact').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const contactId = this.dataset.contactId;
+            const contactName = this.dataset.contactName;
+
+            // 显示确认对话框
+            const modal = new bootstrap.Modal(document.getElementById('updateContactModal'));
+            document.getElementById('updateContactName').textContent = contactName;
+            document.getElementById('confirmUpdate').onclick = () => updateContact(contactId, this, modal);
+            modal.show();
+        });
+    });
+
+    // 更新联系人函数
+    function updateContact(contactId, button, modal) {
+        // 显示加载提示
+        button.disabled = true;
+        const icon = button.querySelector('i');
+        icon.classList.add('rotating');
+
+        // 发送更新请求
+        fetch(`/api/contacts/${contactId}/update`, {
+            method: 'POST'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) throw new Error(data.error || '更新失败');
+
+                // 如果在分析页面，刷新页面
+                const currentPath = window.location.pathname;
+                if (currentPath.includes(`/contact/${contactId}/`)) {
+                    location.reload();
+                }
+
+                // 关闭确认对话框
+                modal.hide();
+            })
+            .catch(error => alert('更新联系人数据失败: ' + error.message))
+            .finally(() => {
+                // 恢复按钮状态
+                button.disabled = false;
+                icon.classList.remove('rotating');
+            });
+    }
+</script>
+
+</body>
+</html>

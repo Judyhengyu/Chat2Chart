@@ -1,0 +1,26 @@
+chat2chart/
+├── app.py                 # 应用入口
+├── config.py             # 配置文件
+├── requirements.txt      # 项目依赖
+├── README.md            # 项目说明
+├── LICENSE              # 许可证
+├── .gitignore           # Git忽略文件
+├── static/              # 静态文件
+│   ├── css/
+│   ├── js/
+│   ├── img/
+│   └── vendor/
+├── templates/           # 模板文件
+│   ├── base.html
+│   ├── index.html
+│   └── analysis/
+├── utils/              # 工具函数
+│   ├── chat_reader.py
+│   ├── data_manager.py
+│   └── analyzer.py
+├── routes/             # 路由文件
+│   ├── pages.py
+│   ├── contacts.py
+│   └── analysis.py
+└── data/              # 数据目录（git忽略）
+    └── contacts/

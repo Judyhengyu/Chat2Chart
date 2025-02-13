@@ -1,0 +1,583 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- 页面标题 -->
+    <div class="pagetitle d-flex align-items-center mb-4">
+        <i class="bi bi-info-circle-fill text-primary me-2" style="font-size: 2rem;"></i>
+        <h1>项目介绍</h1>
+    </div>
+
+    <section class="section">
+        <!-- 项目概述 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center">
+                                <img src="/static/img/logo-wechat.svg" alt="Logo" class="me-3" style="width: 48px;">
+                                <h3 class="card-title m-0">Chat2Chart - 微信聊天记录可视化工具</h3>
+                            </div>
+                            <a href="https://github.com/Judyhengyu/Chat2Chart"
+                               target="_blank"
+                               class="btn btn-outline-dark btn-lg rounded-circle"
+                               data-bs-toggle="tooltip"
+                               data-bs-placement="left"
+                               title="访问 GitHub 仓库">
+                                <i class="bi bi-github"></i>
+                            </a>
+                        </div>
+                        <p class="lead text-muted">
+                            <i class="bi bi-quote me-2"></i>
+                            Chat2Chart 是一个强大的微信聊天记录分析工具，它能够将枯燥的聊天数据转化为直观的图表，帮助用户深入了解聊天互动模式和沟通习惯。
+                        </p>
+                        <p class="lead text-muted">
+                            <i class="bi bi-github"></i>
+                            <a href="https://github.com/xaoyaoo/PyWxDump" target="_blank" class="text-muted">
+                                本项目的聊天记录需要通过 GitHub 上的 PyWxDump 项目来导出 CSV
+                                文件，具体的导出步骤请访问其仓库。（点击这段文字即可跳转）
+                            </a>
+                        <p class="lead text-muted">
+                            <i class="bi bi-exclamation-lg"></i>
+                            聊天记录路径是PyWxDump导出的CSV文件路径，参考：“wxdump_work\export\wxid_xxx\csv\wxid_xxx”
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主要功能 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="fw-bold mb-4 d-flex align-items-center">
+                    <i class="bi bi-stars text-warning me-2"></i>主要功能
+                </h4>
+            </div>
+
+            <!-- 基础分析 -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-primary border-top border-3 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="feature-icon bg-primary bg-gradient text-white rounded-3 me-3">
+                                <i class="bi bi-bar-chart-line"></i>
+                            </div>
+                            <h5 class="card-title text-primary mb-0">基础分析</h5>
+                        </div>
+                        <ul class="feature-list">
+                            <li>
+                                <i class="bi bi-pie-chart-fill text-primary me-2"></i>
+                                <div>
+                                    <strong>消息类型统计</strong>
+                                    <p>展示文字、图片、语音等各类消息的分布比例</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="bi bi-clock-fill text-primary me-2"></i>
+                                <div>
+                                    <strong>时间分布分析</strong>
+                                    <p>分析每日各时段的消息频率，了解活跃时间</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="bi bi-rulers text-primary me-2"></i>
+                                <div>
+                                    <strong>消息长度分析</strong>
+                                    <p>统计文字长度和语音时长，对比双方表达习惯</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="bi bi-graph-up text-primary me-2"></i>
+                                <div>
+                                    <strong>每日统计图表</strong>
+                                    <p>追踪每日消息数量变化，展示聊天频率趋势</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 交互分析 -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-success border-top border-3 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="feature-icon bg-success bg-gradient text-white rounded-3 me-3">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <h5 class="card-title text-success mb-0">交互分析</h5>
+                        </div>
+                        <ul class="feature-list">
+                            <li>
+                                <i class="bi bi-chat-square-text-fill text-success me-2"></i>
+                                <div>
+                                    <strong>对话模式分析</strong>
+                                    <p>分析对话间隔和连续对话特征，展示互动模式</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="bi bi-stopwatch-fill text-success me-2"></i>
+                                <div>
+                                    <strong>响应时间分析</strong>
+                                    <p>统计双方回复速度，了解互动积极程度</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="bi bi-calendar-range-fill text-success me-2"></i>
+                                <div>
+                                    <strong>聊天热力图</strong>
+                                    <p>可视化展示全年聊天活跃度的时间分布</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="bi bi-arrow-repeat text-success me-2"></i>
+                                <div>
+                                    <strong>互动情况分析</strong>
+                                    <p>分析对话的发起和结束特征，展示互动主动性</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 语义分析 -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-warning border-top border-3 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="feature-icon bg-warning bg-gradient text-white rounded-3 me-3">
+                                <i class="bi bi-chat-dots"></i>
+                            </div>
+                            <h5 class="card-title text-warning mb-0">语义分析</h5>
+                        </div>
+                        <ul class="feature-list">
+                            <li>
+                                <i class="bi bi-cloud-fill text-warning me-2"></i>
+                                <div>
+                                    <strong>关键词云图</strong>
+                                    <p>提取高频关键词，直观展示聊天主题重点</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="bi bi-diagram-3-fill text-warning me-2"></i>
+                                <div>
+                                    <strong>话题分布</strong>
+                                    <p>分析聊天内容的主题分类和占比情况</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="bi bi-emoji-smile-fill text-warning me-2"></i>
+                                <div>
+                                    <strong>情感分析</strong>
+                                    <p>分析对话的情感倾向，展示情感变化趋势</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="bi bi-tags-fill text-warning me-2"></i>
+                                <div>
+                                    <strong>话题追踪</strong>
+                                    <p>追踪特定话题的出现时间和讨论热度</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 使用说明和技术特点 -->
+        <div class="row">
+            <!-- 使用说明 -->
+            <div class="col-md-6 mb-4">
+                <div class="card border-info border-start border-4 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h5 class="card-title text-info mb-4">
+                            <i class="bi bi-book me-2"></i>使用说明
+                        </h5>
+                        <div class="feature-grid">
+                            <!-- 步骤1 -->
+                            <div class="feature-item">
+                                <div class="feature-icon-wrapper bg-info-light">
+                                    <i class="bi bi-person-plus text-info"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h6 class="mb-1">添加联系人</h6>
+                                    <p class="text-muted small mb-0">点击"新建联系人"添加聊天记录</p>
+                                </div>
+                            </div>
+
+                            <!-- 步骤2 -->
+                            <div class="feature-item">
+                                <div class="feature-icon-wrapper bg-info-light">
+                                    <i class="bi bi-input-cursor-text text-info"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h6 class="mb-1">输入信息</h6>
+                                    <p class="text-muted small mb-0">输入联系人姓名和聊天记录路径</p>
+                                </div>
+                            </div>
+
+                            <!-- 步骤3 -->
+                            <div class="feature-item">
+                                <div class="feature-icon-wrapper bg-info-light">
+                                    <i class="bi bi-graph-up-arrow text-info"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h6 class="mb-1">自动分析</h6>
+                                    <p class="text-muted small mb-0">系统会自动分析并生成可视化图表</p>
+                                </div>
+                            </div>
+
+                            <!-- 步骤4 -->
+                            <div class="feature-item">
+                                <div class="feature-icon-wrapper bg-info-light">
+                                    <i class="bi bi-eye text-info"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h6 class="mb-1">查看数据</h6>
+                                    <p class="text-muted small mb-0">在侧边栏选择不同的分析维度查看详细数据</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 技术特点 -->
+            <div class="col-md-6 mb-4">
+                <div class="card border-purple border-start border-4 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h5 class="card-title text-purple mb-4">
+                            <i class="bi bi-gear me-2"></i>技术特点
+                        </h5>
+                        <div class="feature-grid">
+                            <!-- 高效的数据处理能力 -->
+                            <div class="feature-item">
+                                <div class="feature-icon-wrapper bg-primary-light">
+                                    <i class="bi bi-lightning-charge-fill text-primary"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h6 class="mb-1">高效的数据处理能力</h6>
+                                    <p class="text-muted small mb-0">快速处理大量聊天记录数据</p>
+                                </div>
+                            </div>
+
+                            <!-- 直观的数据可视化 -->
+                            <div class="feature-item">
+                                <div class="feature-icon-wrapper bg-success-light">
+                                    <i class="bi bi-graph-up-arrow text-success"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h6 class="mb-1">直观的数据可视化</h6>
+                                    <p class="text-muted small mb-0">清晰展示数据分析结果</p>
+                                </div>
+                            </div>
+
+                            <!-- 多维度的数据分析 -->
+                            <div class="feature-item">
+                                <div class="feature-icon-wrapper bg-warning-light">
+                                    <i class="bi bi-layers-fill text-warning"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h6 class="mb-1">多维度的数据分析</h6>
+                                    <p class="text-muted small mb-0">全方位解析聊天数据</p>
+                                </div>
+                            </div>
+
+                            <!-- 完善的错误处理 -->
+                            <div class="feature-item">
+                                <div class="feature-icon-wrapper bg-danger-light">
+                                    <i class="bi bi-shield-check text-danger"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h6 class="mb-1">完善的错误处理</h6>
+                                    <p class="text-muted small mb-0">确保数据处理的稳定性</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 开始使用按钮 -->
+        <div class="text-center mt-4">
+            <a href="/index" class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-sm">
+                <i class="bi bi-arrow-right-circle me-2"></i>开始使用
+            </a>
+        </div>
+    </section>
+
+    <style>
+        /* 特性图标样式 */
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        /* 特性列表样式 */
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: start;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-list li i {
+            font-size: 1.2rem;
+            margin-top: 0.2rem;
+        }
+
+        .feature-list li div {
+            flex: 1;
+        }
+
+        .feature-list li p {
+            margin: 0.25rem 0 0;
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+
+        /* 使用说明样式 */
+        .usage-steps {
+            position: relative;
+            padding: 0 1rem;
+        }
+
+        .usage-step {
+            display: flex;
+            margin-bottom: 2rem;
+        }
+
+        .usage-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            position: relative;
+            margin-right: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .step-number span {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #0dcaf0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        .step-line {
+            position: absolute;
+            top: 32px;
+            width: 2px;
+            height: calc(100% + 1rem);
+            background: #e9ecef;
+        }
+
+        .usage-step:last-child .step-line {
+            display: none;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .step-icon i {
+            font-size: 1.5rem;
+        }
+
+        .step-title {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .step-desc {
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        .bg-info-light {
+            background-color: rgba(13, 202, 240, 0.1);
+        }
+
+        /* 悬停效果 */
+        .usage-step:hover .step-icon {
+            transform: translateY(-3px);
+            transition: transform 0.3s ease;
+        }
+
+        .usage-step:hover .step-number span {
+            box-shadow: 0 0 0 4px rgba(13, 202, 240, 0.2);
+            transition: box-shadow 0.3s ease;
+        }
+
+        /* 技术特点样式 */
+        .tech-features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .tech-feature {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .tech-feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+            background-color: #fff;
+        }
+
+        .tech-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+        }
+
+        .tech-icon-wrapper i {
+            font-size: 1.5rem;
+        }
+
+        .tech-content {
+            flex: 1;
+        }
+
+        /* 浅色背景 */
+        .bg-primary-light {
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+
+        .bg-success-light {
+            background-color: rgba(25, 135, 84, 0.1);
+        }
+
+        .bg-warning-light {
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        .bg-danger-light {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .tech-features-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        /* 特性网格布局 */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        /* 特性项样式 */
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+            background-color: #fff;
+        }
+
+        .feature-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+        }
+
+        .feature-icon-wrapper i {
+            font-size: 1.5rem;
+        }
+
+        .feature-content {
+            flex: 1;
+        }
+
+        /* 浅色背景 */
+        .bg-info-light {
+            background-color: rgba(13, 202, 240, 0.1);
+        }
+
+        .bg-primary-light {
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+
+        .bg-success-light {
+            background-color: rgba(25, 135, 84, 0.1);
+        }
+
+        .bg-warning-light {
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        .bg-danger-light {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+    </style>
+{% endblock %} 
