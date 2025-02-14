@@ -4,3 +4,5 @@ numpy==2.2.3
 pandas==2.2.3
 Requests==2.32.3
 snownlp==0.12.3
+flaskwebgui==1.1.6
+simplejson==3.19.3
