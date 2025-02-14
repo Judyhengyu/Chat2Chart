@@ -4,23 +4,25 @@ import json
 import requests
 from io import BytesIO
 from urllib.parse import quote
-from routes import create_routes
-from routes.pages import create_blueprint as create_pages_blueprint
 from flaskwebgui import FlaskUI
 
 app = Flask(__name__)
 
-# 创建 DataManager 实例
-from utils.data_manager import DataManager
-
-data_manager = DataManager()
-
-# 注册蓝图
-create_routes(app, data_manager)
-app.register_blueprint(create_pages_blueprint())
-
 
 @app.route('/')
+@app.route('/introduction')
+def introduction():
+    """加载项目介绍页面"""
+    # 加载联系人列表数据
+    if os.path.exists('data/contacts.json'):
+        with open('data/contacts.json', 'r', encoding='utf-8') as f:
+            contacts = json.load(f)
+    else:
+        contacts = []
+
+    return render_template('introduction.html', contacts=contacts)
+
+
 @app.route('/index')
 def index():
     """首页"""
