@@ -6,6 +6,7 @@ from io import BytesIO
 from urllib.parse import quote
 from routes import create_routes
 from routes.pages import create_blueprint as create_pages_blueprint
+from flaskwebgui import FlaskUI
 
 app = Flask(__name__)
 
@@ -62,4 +63,5 @@ def urlencode_filter(s):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # app.run(debug=True)  # 浏览器
+    FlaskUI(app=app, server="flask").run()  # 桌面app
