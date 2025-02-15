@@ -1,12 +1,20 @@
 from flask import Flask, render_template, request, send_file
+from flaskwebgui import FlaskUI
 import os
 import json
 import requests
 from io import BytesIO
 from urllib.parse import quote
-from flaskwebgui import FlaskUI
+from routes import create_routes
 
 app = Flask(__name__)
+# 创建 DataManager 实例
+from utils.data_manager import DataManager
+
+data_manager = DataManager()
+
+# 注册蓝图
+create_routes(app, data_manager)
 
 
 @app.route('/')

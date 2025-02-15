@@ -357,7 +357,6 @@ def create_blueprint(data_manager):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-    @bp.route('/')
     @bp.route('/index')
     def index():
         """数据总览页面"""
