@@ -1,8 +1,9 @@
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List
 import pandas as pd
 import json
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
+import re
 
 
 @dataclass
@@ -36,24 +37,49 @@ class ChatReader:
             raise FileNotFoundError(f"用户信息文件不存在: {self.users_file}")
         return json.loads(self.users_file.read_text(encoding='utf-8'))
 
-    def find_chat_file(self) -> Path:
-        """查找聊天记录CSV文件"""
+    def find_chat_files(self) -> List[Path]:
+        """查找所有聊天记录CSV文件并按顺序排序"""
         csv_files = list(self.chat_dir.glob('*.csv'))
         if not csv_files:
             raise FileNotFoundError(f"未找到聊天记录文件: {self.chat_dir}/*.csv")
-        return csv_files[0]
+        
+        # 使用正则表达式提取文件名中的数字范围
+        def get_start_index(file_path: Path) -> int:
+            match = re.search(r'_(\d+)_\d+\.csv$', file_path.name)
+            return int(match.group(1)) if match else 0
+        
+        # 按照起始索引排序
+        return sorted(csv_files, key=get_start_index)
 
     def read_chat_data(self) -> ChatData:
         """读取并处理聊天记录数据"""
         # 读取用户信息
         users = self.read_users()
 
-        # 读取聊天记录
-        chat_file = self.find_chat_file()
-        df = pd.read_csv(chat_file)
+        # 读取所有CSV文件并合并
+        chat_files = self.find_chat_files()
+        dfs = []
+        
+        for file in chat_files:
+            try:
+                df = pd.read_csv(file)
+                dfs.append(df)
+            except Exception as e:
+                print(f"警告：读取文件 {file} 时出错: {str(e)}")
+                continue
 
-        # 处理时间格式
+        if not dfs:
+            raise Exception("没有成功读取任何聊天记录文件")
+
+        # 合并所有数据框
+        df = pd.concat(dfs, ignore_index=True)
+        
+        # 去重（以防万一）
+        df = df.drop_duplicates()
+        
+        # 按时间排序
         df['CreateTime'] = pd.to_datetime(df['CreateTime'])
+        df = df.sort_values('CreateTime')
 
         return ChatData(
             users=users,
